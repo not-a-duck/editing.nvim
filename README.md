@@ -21,7 +21,7 @@ the marked lines, if you are into weird !@#$ like that.
 Apart from little features to help with editing I will also add common-enough
 movements that are language agnostic which I myself use to quickly edit
 documents. Such as `:MoveNextParenthesis`, `:MoveNextBracket`,
-`MoveNextDoubleQuote`, etc.
+`:MoveNextDoubleQuote`, etc.
 
 In my personal init.vim I have the following keymaps, which allow me to quickly
 jump to the next matching tag, and editing whatever is inside the matching
