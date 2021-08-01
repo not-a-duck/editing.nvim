@@ -209,6 +209,11 @@ function methods.UpdateWindow()
       local row = position.row
       local col = position.col
       local lines = vim.api.nvim_buf_get_lines(0, row - 1, row, false)
+      if not lines[1] then
+        -- Lines have been deleted, which messed up the positions (i.e.
+        -- positions do not match with the original intent anymore)
+        return
+      end
       local line = row .. " : " .. lines[1]
       table[index] = line
       max_length = math.max(#line, max_length)
