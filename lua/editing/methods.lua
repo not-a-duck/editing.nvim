@@ -141,7 +141,7 @@ function methods.MultiMacro()
     -- TODO nvim_win_set_cursor does not work for whatever reason ...
     local row = position.row
     local col = position.col
-    vim.api.nvim_win_set_cursor(0, {row, col})
+    -- vim.api.nvim_win_set_cursor(0, {row, col})
     vim.api.nvim_input(':' .. row .. '<CR>')
     vim.api.nvim_input('|')
     if col > 0 then
