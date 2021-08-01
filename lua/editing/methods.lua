@@ -143,11 +143,11 @@ function methods.MultiMacro()
     local col = position.col
     -- vim.api.nvim_win_set_cursor(0, {row, col})
     vim.api.nvim_input(':' .. row .. '<CR>')
-    vim.api.nvim_input('|')
+    vim.api.nvim_input(':norm! |<CR>')
     if col > 0 then
-      vim.api.nvim_input((col - 1) .. 'l')
+      vim.api.nvim_input(':norm! ' .. (col - 1) .. 'l<CR>')
     end
-    vim.api.nvim_input('@q')
+    vim.api.nvim_input(':norm! @q<CR>')
 
     if settings.update_positions then
       local updated_position = vim.api.nvim_win_get_cursor(0)
