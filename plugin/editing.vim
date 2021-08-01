@@ -5,6 +5,7 @@ endif
 command! AddPosition lua require 'editing'.AddPosition()
 command! ClearPositions lua require 'editing'.ClearPositions()
 command! EditingToggleWindow lua require 'editing'.ToggleWindow()
+command! MultiMacro lua require 'editing'.MultiMacro()
 
 command! MoveNextBrace lua require 'editing'.MoveNextBrace()
 command! MoveNextBracket lua require 'editing'.MoveNextBracket()
