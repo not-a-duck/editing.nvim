@@ -178,6 +178,18 @@ function methods.MoveNextAngleBracket()
   move_to_next("[<>]", settings.strict)
 end
 
+function methods.MoveNextDoubleQuote()
+  move_to_next('"', settings.strict)
+end
+
+function methods.MoveNextSingleQuote()
+  move_to_next("'", settings.strict)
+end
+
+function methods.MoveNextDoubleAngle()
+  move_to_next("[«»]", settings.strict)
+end
+
 -- Pop-up window
 ----------------
 
