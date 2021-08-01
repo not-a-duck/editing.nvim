@@ -22,7 +22,7 @@ end
 -- @strict
 -- if the cursor is on the to-be-found pattern already, should we still jump to
 -- the next?
-function move_to_next(pattern, strict)
+local function move_to_next(pattern, strict)
   strict = strict or settings.strict
   -- row index is 1-based
   -- col index is 0-based
@@ -86,7 +86,7 @@ function move_to_next(pattern, strict)
 end
 
 -- The behaviour we want, but the other one uses Lua-style patterns
-function move_to_next_trivial(pattern, strict)
+local function move_to_next_trivial(pattern, strict)
   strict = strict or settings.strict
   -- Blocking
   vim.api.nvim_feedkeys("/" .. pattern .. "<CR>")
@@ -110,6 +110,7 @@ function methods.AddPosition()
   local current_pos = vim.api.nvim_win_get_cursor(0)
   positions[index] = { row = current_pos[1], col = current_pos[2] }
   -- TODO Add highlighting for all cursor positions -> Visual feedback
+  -- Currently the visual feedback is resolved by a little pop-up window
   methods.UpdateWindow()
 end
 
