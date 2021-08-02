@@ -33,10 +33,12 @@ local function move_to_next(pattern, strict)
   -- NOTE: Maybe this is just horribly inefficient
   -- First we try to find it on the current line
   local line = vim.api.nvim_get_current_line()
-  local left, right = string.find(line, pattern)
+  local delta_col = col
+  local left, right = string.find(string.sub(line, col + 1), pattern)
+
   if (left ~= nil) and (right ~= nil) then
     -- Fix off by one indexing on columns
-    left = left - 1
+    left = left - 1 + delta_col
     if (not strict) and (col == left) then
       -- Do nothing
       return
