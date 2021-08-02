@@ -129,6 +129,12 @@ function methods.MultiMacro()
     return
   end
 
+  -- TODO (Low priority) make the used macro a function argument with a
+  -- settings.default_macro instead of a hard-coded q
+
+  -- TODO if the q-macro adds newlines to the buffer, the macro should be run
+  -- on the positions in reverse-sorted order to avoid the most obvious bugs
+
   -- TODO check register q for contents, if nothing is seen, display an error
   -- message
   -- if not register('q') then

@@ -16,6 +16,14 @@ In short:
 The `:AddPosition` and `:ToggleWindow` could also be used to simply stare at
 the marked lines, if you are into weird !@#$ like that.
 
+## Nota bene
+
+As of right now the `:MultiMacro` _will_ produce buggy results if the q-macro
+adds extra newlines to the buffer. As the positions are not updated on each
+action, the macro will be reproduced at incorrect positions.
+A workaround could be to simply not allow this behaviour, but I would rather
+reverse-sort the positions to make it possible to do this.
+
 # Movement
 
 Apart from little features to help with editing I will also add common-enough
