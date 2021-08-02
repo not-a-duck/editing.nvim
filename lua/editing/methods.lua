@@ -206,17 +206,28 @@ function methods.UpdateWindow()
   local max_length = 0
 
   if positions ~= nil then
-    for index, position in ipairs(positions) do
+    for _, position in ipairs(positions) do
       local row = position.row
       local col = position.col
+      local prefix = row .. " : "
+      -- We want to show which character the cursor is stored on
+      col = col + #prefix
       local lines = vim.api.nvim_buf_get_lines(0, row - 1, row, false)
       if not lines[1] then
         -- Lines have been deleted, which messed up the positions (i.e.
         -- positions do not match with the original intent anymore)
+        -- TODO possibly just delete the positions, or do something smart with
+        -- autocmd
+        Error("Most likely some lines have been deleted")
         return
       end
-      local line = row .. " : " .. lines[1]
+      -- TODO I would like the cursor hinting to be non-ASCII art (i.e. bold
+      -- character or coloured character) but for now this will do
+      local line = prefix .. lines[1]
+      local hint = string.rep(" ", col) .. "^" .. string.rep(" ", #line - col - 1)
+      index = #table + 1
       table[index] = line
+      table[index + 1] = hint
       max_length = math.max(#line, max_length)
     end
   end
