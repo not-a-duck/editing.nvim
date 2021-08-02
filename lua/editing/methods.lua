@@ -146,7 +146,7 @@ function methods.MultiMacro()
     vim.api.nvim_input(':' .. row .. '<CR>')
     vim.api.nvim_input(':norm! |<CR>')
     if col > 0 then
-      vim.api.nvim_input(':norm! ' .. (col - 1) .. 'l<CR>')
+      vim.api.nvim_input(':norm! ' .. col .. 'l<CR>')
     end
     vim.api.nvim_input(':norm! @q<CR>')
 
