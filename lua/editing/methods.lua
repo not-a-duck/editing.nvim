@@ -132,8 +132,14 @@ function methods.MultiMacro()
   -- TODO (Low priority) make the used macro a function argument with a
   -- settings.default_macro instead of a hard-coded q
 
-  -- TODO if the q-macro adds newlines to the buffer, the macro should be run
-  -- on the positions in reverse-sorted order to avoid the most obvious bugs
+  -- the macro runs in reverse sorted order (from bottom to top), to avoid the
+  -- most obvious bugs when adding newlines during multimacro execution
+  local sorted_positions = {}
+  -- Naive copy
+  for i, p in ipairs(positions) do
+    sorted_positions[i] = p
+  end
+  table.sort(sorted_positions, function(x, y) return x.row > y.row end)
 
   -- TODO check register q for contents, if nothing is seen, display an error
   -- message
@@ -146,7 +152,7 @@ function methods.MultiMacro()
   local current_col = current_pos[2]
 
   -- Skip current position if it's in the stored positions
-  for index, position in ipairs(positions) do
+  for index, position in ipairs(sorted_positions) do
     -- TODO nvim_win_set_cursor does not work for whatever reason ...
     local row = position.row
     local col = position.col
@@ -157,11 +163,6 @@ function methods.MultiMacro()
       vim.api.nvim_input(':norm! ' .. col .. 'l<CR>')
     end
     vim.api.nvim_input(':norm! @q<CR>')
-
-    if settings.update_positions then
-      local updated_position = vim.api.nvim_win_get_cursor(0)
-      positions[index] = { row = updated_position[1] , col = updated_position[2] }
-    end
   end
 
   -- Reset the cursor position
