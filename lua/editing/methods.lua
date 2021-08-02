@@ -219,12 +219,16 @@ function methods.UpdateWindow()
         -- TODO possibly just delete the positions, or do something smart with
         -- autocmd
         Error("Most likely some lines have been deleted")
+        positions = nil
         return
       end
       -- TODO I would like the cursor hinting to be non-ASCII art (i.e. bold
       -- character or coloured character) but for now this will do
-      local line = prefix .. lines[1]
-      local hint = string.rep(" ", col) .. "^" .. string.rep(" ", #line - col - 1)
+      -- Fix preview indentation by replacing all tabs with tabstop * space
+      local tabstop = vim.api.nvim_get_option("tabstop")
+      local _, num_tabs = string.gsub(string.sub(lines[1], 0, col + 1), '\t', '')
+      local line = prefix .. lines[1]:gsub('\t', string.rep(' ', tabstop))
+      local hint = string.rep(' ', col + num_tabs) .. "^" .. string.rep(" ", #line - col - 1)
       index = #table + 1
       table[index] = line
       table[index + 1] = hint
