@@ -220,8 +220,11 @@ function methods.UpdateWindow()
         -- positions do not match with the original intent anymore)
         -- TODO possibly just delete the positions, or do something smart with
         -- autocmd
-        Error("Most likely some lines have been deleted")
+        Error("One of the positions is off, all positions will be deleted to avoid bigger problems")
         positions = nil
+        -- Recursive call is kind of ugly, but since positions is now set to
+        -- nil, we can pull this off without any worries
+        methods.UpdateWindow()
         return
       end
       -- TODO I would like the cursor hinting to be non-ASCII art (i.e. bold
