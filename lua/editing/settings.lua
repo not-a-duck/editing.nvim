@@ -17,6 +17,12 @@ local defaults = {
     col = 0,
     focusable = false,
   },
+
+  -- When dealing with non-ASCII languages, and if Lua supports it, we could
+  -- simply replace the symbols used in (Alpha)Numeric search
+  lowercase = "abcdefghijklmnopqrstuvwxyz",
+  uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  digits = "0123456789",
 }
 
 return defaults

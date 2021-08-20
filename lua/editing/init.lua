@@ -15,6 +15,8 @@ local plugin = {
   MoveNextDoubleQuote = methods.MoveNextDoubleQuote,
   MoveNextSingleQuote = methods.MoveNextSingleQuote,
   MoveNextDoubleAngle = methods.MoveNextDoubleAngle,
+  MoveNextNumeric = methods.MoveNextNumeric,
+  MoveNextAlphaNumeric = methods.MoveNextAlphaNumeric,
 
   -- Window
   UpdateWindow = methods.UpdateWindow,

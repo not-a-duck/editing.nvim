@@ -187,6 +187,20 @@ function methods.MoveNextDoubleAngle()
   move_to_next("[«»]", settings.strict)
 end
 
+function methods.MoveNextNumeric()
+  local digits = settings.digits
+  local pattern = "[" .. digits .. "]"
+  move_to_next(pattern, settings.strict)
+end
+
+function methods.MoveNextAlphaNumeric()
+  local lowercase = settings.lowercase
+  local uppercase = settings.uppercase
+  local digits = settings.digits
+  local pattern = "[" .. lowercase .. uppercase .. digits .. "]+"
+  move_to_next(pattern, settings.strict)
+end
+
 -- Pop-up window
 ----------------
 

@@ -18,11 +18,11 @@ the marked lines, if you are into weird !@#$ like that.
 
 ## Nota bene
 
-As of right now the `:MultiMacro` _will_ produce buggy results if the q-macro
-adds extra newlines to the buffer. As the positions are not updated on each
-action, the macro will be reproduced at incorrect positions.
-A workaround could be to simply not allow this behaviour, but I would rather
-reverse-sort the positions to make it possible to do this.
+As of right now the `:MultiMacro` _will probably_ produce buggy results if the
+q-macro adds extra newlines to the buffer. As the positions are not updated on
+each action, the macro will be reproduced at incorrect positions.  The current
+workaround is to reverse-sort the positions to make it possible to do this, but
+this is not a perfect solution.
 
 # Movement
 
@@ -49,6 +49,7 @@ nn c< :MoveNextAngleBracket<CR>ci<
 nn c> :MoveNextAngleBracket<CR>ci<
 nn c" :MoveNextDoubleQuote<CR>ci"
 nn c' :MoveNextSingleQuote<CR>ci'
+nn cn :MoveNextNumeric<CR>ciw
 ```
 
 I have been using a vimscript version of these keybindings so often I decided
@@ -79,6 +80,12 @@ require('editing').setup{
     col = 0,
     focusable = false,
   },
+
+  -- When dealing with non-ASCII languages, and if Lua supports it, we could
+  -- simply replace the symbols used in (Alpha)Numeric search
+  lowercase = "abcdefghijklmnopqrstuvwxyz",
+  uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  digits = "0123456789",
 }
 ```
 
