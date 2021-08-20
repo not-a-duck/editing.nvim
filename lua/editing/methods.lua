@@ -49,10 +49,10 @@ local function move_to_next(pattern, strict)
     return
   end
 
-  -- Start from the next line until the end
+  -- Modulo buffer contents loop
   local buffer_contents = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   local index = row + 1
-  while index < #buffer_contents do
+  repeat
     local line = buffer_contents[index]
     -- Search current line
     local result = string.find(line, pattern)
@@ -65,26 +65,13 @@ local function move_to_next(pattern, strict)
       vim.api.nvim_win_set_cursor(0, {index, left})
       return
     end
-    index = index + 1
-  end
 
-  -- Still not found, try from the start until the cursor row
-  local index = 1
-  while index < row do
-    local line = buffer_contents[index]
-    -- Search current line
-    local result = string.find(line, pattern)
-    if result then
-      -- If not nil, we have indices
-      local left, right = result
-      -- Fix off by one indexing on columns
-      left = left - 1
-      -- Move the cursor
-      vim.api.nvim_win_set_cursor(0, {index, left})
-      return
-    end
     index = index + 1
-  end
+    -- Modulo for 1-based indexing ...
+    if index > #buffer_contents then
+      index = 1
+    end
+  until index == row
 end
 
 -- The behaviour we want, but the other one uses Lua-style patterns
