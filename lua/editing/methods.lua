@@ -24,11 +24,9 @@ end
 
 -- Move the cursor to the next character sequence (or single character) without
 -- cluttering the search register
--- @pattern
--- single character or a sequence of characters
--- @strict
--- if the cursor is on the to-be-found pattern already, should we still jump to
--- the next?
+-- @pattern single character, or a sequence of characters, or an actual pattern
+-- @strict if the cursor is on the to-be-found pattern already, should we still
+-- jump to the next?
 local function move_to_next(pattern, strict)
   strict = strict or settings.strict
   -- row index is 1-based
@@ -122,7 +120,7 @@ function methods.ClearPositions()
   methods.UpdateWindow()
 end
 
--- Start multi-cursor editing mode
+-- Execute the default macro on all marked positions
 function methods.MultiMacro()
   local buffer_nr = GetBufferNumber()
   local positions = BUFFER_POSITIONS[buffer_nr]
@@ -141,7 +139,9 @@ function methods.MultiMacro()
   end
 
   local comparison = function(x, y)
-    -- We now also reverse sort from right to left, not just from bottom to top
+    -- We also reverse sort from right to left, not just from bottom to top
+    -- Assuming most edits only add characters, this should produce the least
+    -- number of bugs
     if x.row == y.row then
       return x.col > y.col
     end
@@ -151,9 +151,9 @@ function methods.MultiMacro()
 
   table.sort(sorted_positions, comparison)
 
-  -- TODO check register q for contents, if nothing is seen, display an error
-  -- message
-  -- if not register('q') then
+  -- TODO check the default macro register's contents, display an error
+  -- message if nothing is found?
+  -- if not register(settings.default_macro) then
   --   Error("We need something to work with")
   -- end
 
