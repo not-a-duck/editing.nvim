@@ -109,6 +109,7 @@ function methods.AddPosition()
   local index = #positions + 1
   local current_pos = vim.api.nvim_win_get_cursor(0)
   positions[index] = { row = current_pos[1], col = current_pos[2] }
+
   -- TODO Add highlighting for all cursor positions -> Visual feedback
   -- Currently the visual feedback is resolved by a little pop-up window
   methods.UpdateWindow()
