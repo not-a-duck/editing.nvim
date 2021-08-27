@@ -132,9 +132,6 @@ function methods.MultiMacro()
     return
   end
 
-  -- TODO (Low priority) make the used macro a function argument with a
-  -- settings.default_macro instead of a hard-coded q
-
   -- the macro runs in reverse sorted order (from bottom to top), to avoid the
   -- most obvious bugs when adding newlines during multimacro execution
   local sorted_positions = {}
@@ -166,16 +163,21 @@ function methods.MultiMacro()
 
   -- Skip current position if it's in the stored positions
   for index, position in ipairs(sorted_positions) do
-    -- TODO nvim_win_set_cursor does not work for whatever reason ...
     local row = position.row
     local col = position.col
+
+    -- TODO nvim_win_set_cursor does not work for whatever reason ...
     -- vim.api.nvim_win_set_cursor(0, {row, col})
+
+    -- Ugly workaround
     vim.api.nvim_input(':' .. row .. '<CR>')
     vim.api.nvim_input(':norm! |<CR>')
     if col > 0 then
       vim.api.nvim_input(':norm! ' .. col .. 'l<CR>')
     end
-    vim.api.nvim_input(':norm! @q<CR>')
+
+    -- Execute macro
+    vim.api.nvim_input(':norm! @' .. settings.default_macro .. '<CR>')
   end
 
   -- Reset the cursor position

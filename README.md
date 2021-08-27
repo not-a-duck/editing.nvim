@@ -86,6 +86,9 @@ require('editing').setup{
   lowercase = "abcdefghijklmnopqrstuvwxyz",
   uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
   digits = "0123456789",
+
+  -- The register from which we use the recorded macro in MultiMacro
+  default_macro = 'q',
 }
 ```
 
