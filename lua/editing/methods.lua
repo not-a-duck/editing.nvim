@@ -2,17 +2,24 @@ local settings = require('editing.settings')
 
 -- Store all cursor positions from which editing should take place
 -- simultaneously (multi-cursor)
-local positions = nil
+local BUFFER_POSITIONS = {}
 
 -- Small window to display information
+local BUFFER_WINDOWS = {}
+
+-- Re-use the same buffer for every potential tab, it is refilled on every
+-- cursor movement anyway
 local info_buffer = vim.api.nvim_create_buf(false, true)
-local info_window = nil
 
 -- All local functions
 ----------------------
 
 local function Error(message)
   vim.api.nvim_err_writeln(message)
+end
+
+local function GetBufferNumber()
+  return vim.api.nvim_buf_get_number(0)
 end
 
 -- Move the cursor to the next character sequence (or single character) without
@@ -89,10 +96,14 @@ end
 local methods = {}
 
 function methods.AddPosition()
+  local buffer_nr = GetBufferNumber()
+  local positions = BUFFER_POSITIONS[buffer_nr]
+
   -- Set positions for multi-cursor editing
   if not positions then
     -- Initialize positions table if deleted
     positions = {}
+    BUFFER_POSITIONS[buffer_nr] = positions
   end
 
   local index = #positions + 1
@@ -103,14 +114,18 @@ function methods.AddPosition()
   methods.UpdateWindow()
 end
 
--- Clear positions for multi-cursor editing
+-- Clear multi-cursor macro buffer positions
 function methods.ClearPositions()
-  positions = nil
+  local buffer_nr = GetBufferNumber()
+  BUFFER_POSITIONS[buffer_nr] = {}
   methods.UpdateWindow()
 end
 
 -- Start multi-cursor editing mode
 function methods.MultiMacro()
+  local buffer_nr = GetBufferNumber()
+  local positions = BUFFER_POSITIONS[buffer_nr]
+
   if not positions then
     Error("There are no positions!")
     return
@@ -126,7 +141,17 @@ function methods.MultiMacro()
   for i, p in ipairs(positions) do
     sorted_positions[i] = p
   end
-  table.sort(sorted_positions, function(x, y) return x.row > y.row end)
+
+  local comparison = function(x, y)
+    -- We now also reverse sort from right to left, not just from bottom to top
+    if x.row == y.row then
+      return x.col > y.col
+    end
+
+    return x.row > y.row
+  end
+
+  table.sort(sorted_positions, comparison)
 
   -- TODO check register q for contents, if nothing is seen, display an error
   -- message
@@ -205,6 +230,9 @@ end
 ----------------
 
 function methods.UpdateWindow()
+  local buffer_nr = GetBufferNumber()
+  local info_window = BUFFER_WINDOWS[buffer_nr]
+
   if not info_window then
     return
   end
@@ -215,6 +243,7 @@ function methods.UpdateWindow()
   -- override window width
   local max_length = 0
 
+  local positions = BUFFER_POSITIONS[buffer_nr]
   if positions ~= nil then
     for _, position in ipairs(positions) do
       local row = position.row
@@ -229,7 +258,7 @@ function methods.UpdateWindow()
         -- TODO possibly just delete the positions, or do something smart with
         -- autocmd
         Error("One of the positions is off, all positions will be deleted to avoid bigger problems")
-        positions = nil
+        methods.ClearPositions()
         -- Recursive call is kind of ugly, but since positions is now set to
         -- nil, we can pull this off without any worries
         methods.UpdateWindow()
@@ -260,8 +289,11 @@ function methods.UpdateWindow()
 end
 
 function methods.ToggleWindow()
+  local buffer_nr = GetBufferNumber()
+  local info_window = BUFFER_WINDOWS[buffer_nr]
   if not info_window then
     info_window = vim.api.nvim_open_win(info_buffer, false, settings.window_config)
+    BUFFER_WINDOWS[buffer_nr] = info_window
 
     -- Call the update
     methods.UpdateWindow()
@@ -275,10 +307,12 @@ function methods.ToggleWindow()
     ]])
   else
     -- Remove window gracefully
-    vim.cmd("autocmd! EDITINGWINDOW")
+    -- NOTE: If we delete the EDITINGWINDOW augroup, the floating windows in
+    -- other tabs stop working.
+    -- vim.cmd("autocmd! EDITINGWINDOW")
+    -- vim.api.nvim_buf_set_lines(info_buffer, 0, -1, false, {})
     vim.api.nvim_win_close(info_window, true)
-    vim.api.nvim_buf_set_lines(info_buffer, 0, -1, false, {})
-    info_window = nil
+    BUFFER_WINDOWS[buffer_nr] = nil
   end
 end
 
