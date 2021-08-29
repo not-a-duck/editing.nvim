@@ -18,6 +18,10 @@ local plugin = {
   MoveNextNumeric = methods.MoveNextNumeric,
   MoveNextAlphaNumeric = methods.MoveNextAlphaNumeric,
 
+  -- Generic functions, user may supply Lua-style patterns
+  MoveNext = methods.MoveNext,
+  SelectSlash = methods.SelectSlash,
+
   -- Window
   UpdateWindow = methods.UpdateWindow,
   ToggleWindow = methods.ToggleWindow,

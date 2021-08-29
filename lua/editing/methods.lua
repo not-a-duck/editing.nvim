@@ -22,15 +22,22 @@ local function GetBufferNumber()
   return vim.api.nvim_buf_get_number(0)
 end
 
--- Move the cursor to the next character sequence (or single character) without
--- cluttering the search register
--- @pattern single character, or a sequence of characters, or an actual pattern
--- @strict if the cursor is on the to-be-found pattern already, should we still
--- jump to the next?
-local function move_to_next(pattern, strict)
-  strict = strict or settings.strict
+local function parse_dots( ... )
+  local pt = {}
+  for i, e in ipairs({ ... }) do
+    pt[i] = e
+  end
+
+  -- Accept all arguments as one large string
+  return table.concat(pt, "")
+end
+
+local function find_next(pattern, strict)
+  -- Returns either nil or {row, col} where
   -- row index is 1-based
   -- col index is 0-based
+
+  strict = strict or settings.strict
   local curpos = vim.api.nvim_win_get_cursor(0)
   local row = curpos[1]
   local col = curpos[2]
@@ -38,54 +45,71 @@ local function move_to_next(pattern, strict)
   -- NOTE: Maybe this is just horribly inefficient
   -- First we try to find it on the current line
   local line = vim.api.nvim_get_current_line()
-  local delta_col = col
-  local left, right = string.find(string.sub(line, col + 1), pattern)
+  -- Left and right columns
+  local left = nil
+  local right = nil
+
+  -- Can we find the pattern on the current line?
+  left, right = string.find(line, pattern, col + 1)
+  if (left == nil) or (right == nil) then
+    goto continue
+  end
+
+  -- If we found it, we may still need to go to the next occurrence
+  if strict and left == (col + 1) then
+    left, right = string.find(line, pattern, right + 1)
+  end
 
   if (left ~= nil) and (right ~= nil) then
-    -- Fix off by one indexing on columns
-    left = left - 1 + delta_col
-    if (not strict) and (col == left) then
-      -- Do nothing
-      return
-    end
-
-    -- Move to the start of the found match
-    vim.api.nvim_win_set_cursor(0, {row, left})
-    return
+    return {row, left - 1}
   end
+
+  ::continue::
 
   -- Modulo buffer contents loop
   local buffer_contents = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-  local index = row + 1
+  local crow = row + 1
   repeat
-    local line = buffer_contents[index]
+    local line = buffer_contents[crow]
     -- Search current line
     local result = string.find(line, pattern)
     if result then
       -- If not nil, we have indices
       local left, right = result
       -- Fix off by one indexing on columns
-      left = left - 1
-      -- Move the cursor
-      vim.api.nvim_win_set_cursor(0, {index, left})
-      return
+      return {crow, left - 1}
     end
 
-    index = index + 1
+    crow = crow + 1
     -- Modulo for 1-based indexing ...
-    if index > #buffer_contents then
-      index = 1
+    if crow > #buffer_contents then
+      crow = 1
     end
-  until index == row
+  until crow == row
+
+  return nil
+end
+
+-- Move the cursor to the next character sequence (or single character) without
+-- cluttering the search register
+-- @pattern single character, or a sequence of characters, or an actual pattern
+-- @strict if the cursor is on the to-be-found pattern already, should we still
+-- jump to the next?
+local function move_to_next(pattern, strict)
+  position = find_next(pattern, strict)
+  if position ~= nil then
+    -- Move to the start of the found match
+    vim.api.nvim_win_set_cursor(0, position)
+  end
 end
 
 -- The behaviour we want, but the other one uses Lua-style patterns
 local function move_to_next_trivial(pattern, strict)
   strict = strict or settings.strict
   -- Blocking
-  vim.api.nvim_feedkeys("/" .. pattern .. "<CR>")
+  vim.api.nvim_feedkeys("/" .. pattern .. "<CR>", "n", false)
   -- Non blocking
-  vim.api.nvim_input("/" .. pattern .. "<CR>")
+  vim.api.nvim_input("/" .. pattern .. "/<CR>")
 end
 
 -- Exported functions
@@ -171,10 +195,7 @@ function methods.MultiMacro()
 
     -- Ugly workaround
     vim.api.nvim_input(':' .. row .. '<CR>')
-    vim.api.nvim_input(':norm! |<CR>')
-    if col > 0 then
-      vim.api.nvim_input(':norm! ' .. col .. 'l<CR>')
-    end
+    vim.api.nvim_input(':norm! ' .. (col + 1) .. '|<CR>')
 
     -- Execute macro
     vim.api.nvim_input(':norm! @' .. settings.default_macro .. '<CR>')
@@ -227,6 +248,33 @@ function methods.MoveNextAlphaNumeric()
   local digits = settings.digits
   local pattern = "[" .. lowercase .. uppercase .. digits .. "]+"
   move_to_next(pattern, settings.strict)
+end
+
+function methods.MoveNext( ... )
+  local pattern = parse_dots( ... )
+  move_to_next(pattern, true)
+end
+
+function methods.SelectSlash( ... )
+  local pattern = parse_dots( ... )
+
+  -- Find strictly next position, but with Lua-style patterns
+  local current_position = vim.api.nvim_win_get_cursor(0)
+  position = find_next(pattern, true)
+  if position ~= nil then
+    local crow = current_position[1]
+    local ccol = current_position[2]
+    local nrow = position[1]
+    local ncol = position[2]
+    if nrow == crow then
+      if ncol > ccol then
+        vim.api.nvim_feedkeys("v" .. (ncol + 1) .. "|", "n", false)
+      end
+    elseif nrow > crow then
+      local drow = nrow - crow
+      vim.api.nvim_feedkeys("v" .. drow .. "j" .. (ncol + 1) .. "|", "n", false)
+    end
+  end
 end
 
 -- Pop-up window

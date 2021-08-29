@@ -16,3 +16,9 @@ command! MoveNextSingleQuote lua require 'editing'.MoveNextSingleQuote()
 command! MoveNextDoubleAngle lua require 'editing'.MoveNextDoubleAngle()
 command! MoveNextNumeric lua require 'editing'.MoveNextNumeric()
 command! MoveNextAlphaNumeric lua require 'editing'.MoveNextAlphaNumeric()
+
+" Generic functions, user may supply Lua-style patterns
+" Escaping should be done with a % symbol, for the following characters
+" ( ) . % + - * ? [ ^ $
+command! -nargs=* MoveNext lua require 'editing'.MoveNext(<f-args>)
+command! -nargs=* SelectSlash lua require 'editing'.SelectSlash(<f-args>)
