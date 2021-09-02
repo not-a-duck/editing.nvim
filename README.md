@@ -39,17 +39,31 @@ supports slight horizontal jumps when using `ci"`, I am merely extending the
 range, extending the options, and shortening the shortcut.
 
 ```vim
-nn c( :MoveNextParenthesis<CR>ci(
-nn c) :MoveNextParenthesis<CR>ci(
-nn c[ :MoveNextBracket<CR>ci[
-nn c] :MoveNextBracket<CR>ci[
-nn c{ :MoveNextBrace<CR>ci{
-nn c} :MoveNextBrace<CR>ci{
-nn c< :MoveNextAngleBracket<CR>ci<
-nn c> :MoveNextAngleBracket<CR>ci<
-nn c" :MoveNextDoubleQuote<CR>ci"
-nn c' :MoveNextSingleQuote<CR>ci'
-nn cn :MoveNextNumeric<CR>ciw
+nn <silent> c( :MoveNextParenthesis<CR>ci(
+nn <silent> c) :MoveNextParenthesis<CR>ci)
+nn <silent> c[ :MoveNextBracket<CR>ci[
+nn <silent> c] :MoveNextBracket<CR>ci]
+nn <silent> c{ :MoveNextBrace<CR>ci{
+nn <silent> c} :MoveNextBrace<CR>ci}
+nn <silent> c< :MoveNextAngleBracket<CR>ci<
+nn <silent> c> :MoveNextAngleBracket<CR>ci>
+nn <silent> c" :MoveNextDoubleQuote<CR>ci"
+nn <silent> c' :MoveNextSingleQuote<CR>ci'
+nn <silent> c` :MoveNextBacktick<CR>ci`
+nn <silent> cn :MoveNextNumeric<CR>ciw
+```
+
+#
+
+Here is something silly to consider when writing markdown, where words between
+underscores or stars are emphasized. All other movement and replacement
+commands are roughly similar, except that they can use vim built-in
+change-inside-structure edit motions. Note that for the * symbol we have to
+escape it with the % symbol.
+
+```vim
+nn <silent> c_ :MoveNext _<CR>:SelectSlash _<CR>c
+nn <silent> c* :MoveNext %*<CR>:SelectSlash %*<CR>c
 ```
 
 I have been using a vimscript version of these keybindings so often I decided

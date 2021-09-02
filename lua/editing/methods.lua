@@ -232,6 +232,10 @@ function methods.MoveNextSingleQuote()
   move_to_next("'", settings.strict)
 end
 
+function methods.MoveNextBacktick()
+  move_to_next("`", settings.strict)
+end
+
 function methods.MoveNextDoubleAngle()
   move_to_next("[«»]", settings.strict)
 end
