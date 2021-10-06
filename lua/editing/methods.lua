@@ -69,6 +69,9 @@ local function find_next(pattern, strict)
   -- Modulo buffer contents loop
   local buffer_contents = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   local crow = row + 1
+  if crow > #buffer_contents then
+    crow = 1
+  end
   repeat
     local line = buffer_contents[crow]
     -- Search current line
