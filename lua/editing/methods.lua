@@ -273,12 +273,17 @@ function methods.SelectSlash( ... )
     local ccol = current_position[2]
     local nrow = position[1]
     local ncol = position[2]
+    -- TODO This does not work when text contains tabs, because the cursor
+    -- position does not play well with tabs, the delta x and y do need to
+    -- account for tabs.
     if nrow == crow then
       if ncol > ccol then
         vim.api.nvim_feedkeys("v" .. (ncol + 1) .. "|", "n", false)
+        -- vim.api.nvim_win_set_cursor(0, position)
       end
     elseif nrow > crow then
       local drow = nrow - crow
+      -- vim.api.nvim_win_set_cursor(0, position)
       vim.api.nvim_feedkeys("v" .. drow .. "j" .. (ncol + 1) .. "|", "n", false)
     end
   end
