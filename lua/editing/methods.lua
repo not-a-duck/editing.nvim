@@ -379,9 +379,41 @@ function methods.ToggleWindow()
   end
 end
 
--- Simply override default settings with whatever is given in the update table
+local function Print(structure, prefix)
+  prefix = prefix or "X"
+  local s_type = type(structure)
+  if (s_type ~= "table") then
+    print(prefix .. " = " .. structure .. " (" .. s_type .. ")")
+    return
+  end
+  print(prefix .. " (" .. s_type .. ")")
+  for k, v in pairs(structure) do
+    Print(v, prefix .. "[" .. tostring(k) .. "]")
+  end
+end
+
+local function Update(T, U)
+  if type(T) ~= "table" or type(U) ~= "table" then
+    Print(T, "defaults")
+    Print(U, "update")
+    error("Invalid types given in Update(T, U) (see above)!")
+  end
+  for k, v in pairs(U) do
+    c = T[k]
+    if c == nil then
+      error("Update was unsuccessful, because key «" .. tostring(k) .. "» is invalid!")
+    end
+    if type(c) == "table" then
+      Update(c, v)
+    else
+      T[k] = v
+    end
+  end
+end
+
 function methods.Setup(update)
-  settings = setmetatable(update, { __index = settings })
+  update = update or {}
+  Update(settings, update)
 end
 
 return methods
